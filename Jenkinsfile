@@ -5,12 +5,7 @@ pipeline {
     }
 
     stages {
-        stage('Hello') {
-            steps {
-                echo 'Hello world'
-                
-            }
-        }
+     
          stage('build') {
             steps {
                 echo 'Hello build'
@@ -19,15 +14,20 @@ pipeline {
                 sh 'mvn package'
             }
         }
-         stage('deploy') {
+         stage('test') {
             steps {
-                echo 'Hello deploy'
+                sh 'mvn test'
                 
             }
         }
-         stage('test') {
+         stage('build and publish iamge') {
             steps {
-                echo 'Hello test'
+                script {
+                    checkout scm
+                    docker.withRegistry('', 'DockerRegistryID') {
+                        def customImage = docker.build("georgeekwen/hol-pipeline:${env.BUILD_ID}")
+                        customImage.push()
+                    }
                
             }
         }
